@@ -1,0 +1,110 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb_checkpoints/
+
+# PyCharm
+.idea/
+
+# VS Code
+.vscode/
+
+# Data files (large CSV files)
+data/*.csv
+!data/.gitkeep
+
+# Model files (large binary files)
+models/*.pkl
+models/*.h5
+models/*.pb
+models/*.pt
+models/*.pth
+!models/.gitkeep
+
+# Results (optional - uncomment if you want to ignore)
+# results/*.csv
+# results/*.txt
+!results/.gitkeep
+
+# Plots (optional - uncomment if you want to ignore)
+# plots/*.png
+# plots/*.jpg
+# plots/*.pdf
+!plots/.gitkeep
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# API Keys and Secrets
+*secrets*
+*credentials*
+*api_key*
+config.ini
+
+# Operating System
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
+
+# Compiled files
+*.pyc
+*.pyo
+
+# Package managers
+pip-log.txt
+pip-delete-this-directory.txt
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/

@@ -195,7 +195,10 @@ class Backtester:
         }
         
         # Extract trades
-        from .strategy import TradeAnalyzer
+        try:
+            from .strategy import TradeAnalyzer
+        except ImportError:
+            from strategy import TradeAnalyzer
         trades_df = TradeAnalyzer.extract_trades(df)
         if len(trades_df) > 0:
             results['trades'] = trades_df

@@ -184,11 +184,10 @@ class XGBoostModel:
             self.model.fit(
                 X_train_scaled, y_train,
                 eval_set=[(X_val_scaled, y_val)],
-                early_stopping_rounds=10,
                 verbose=False
             )
         else:
-            self.model.fit(X_train_scaled, y_train)
+            self.model.fit(X_train_scaled, y_train, verbose=False)
         
         # Calculate training metrics
         y_train_pred = self.model.predict(X_train_scaled)

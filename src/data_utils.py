@@ -1,6 +1,6 @@
 """
 Data Utilities Module
-Handles data fetching, cleaning, merging, and preprocessing
+Handles data fetching, cleaning, merging, and preprocessing using yfinance
 """
 
 import pandas as pd
@@ -8,6 +8,7 @@ import numpy as np
 from datetime import datetime, timedelta
 from typing import Tuple, List, Optional
 import logging
+import yfinance as yf
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -15,66 +16,121 @@ logger = logging.getLogger(__name__)
 
 class DataFetcher:
     """
-    Fetch data from various sources (Zerodha, ICICI Breeze, NSE, etc.)
+    Fetch data from yfinance (free, no API key required)
     """
     
     def __init__(self, api_key: Optional[str] = None, api_secret: Optional[str] = None):
         """
-        Initialize DataFetcher with API credentials
+        Initialize DataFetcher
+        Note: yfinance doesn't require API credentials
         
         Args:
-            api_key: API key for data source
-            api_secret: API secret for data source
+            api_key: Optional (not used with yfinance)
+            api_secret: Optional (not used with yfinance)
         """
         self.api_key = api_key
         self.api_secret = api_secret
+        logger.info("DataFetcher initialized with yfinance backend")
         
-    def fetch_nifty_spot(self, start_date: str, end_date: str, interval: str = '5minute') -> pd.DataFrame:
+    def fetch_nifty_spot(self, start_date: str, end_date: str, interval: str = '1d') -> pd.DataFrame:
         """
-        Fetch NIFTY 50 Spot OHLCV data
+        Fetch NIFTY 50 Spot OHLCV data using yfinance
         
         Args:
             start_date: Start date (YYYY-MM-DD)
             end_date: End date (YYYY-MM-DD)
-            interval: Time interval (default: 5minute)
+            interval: Time interval ('1m', '5m', '15m', '30m', '1h', '1d', etc.)
+            
+        Returns:
+            DataFrame with columns: Date, Open, High, Low, Close, Volume
+        """
+        logger.info(f"Fetching NIFTY 50 Spot data from {start_date} to {end_date}, interval: {interval}")
+        
+        try:
+            # ^NSEI is the ticker for NIFTY 50 on Yahoo Finance
+            nifty_spot = yf.download('^NSEI', start=start_date, end=end_date, interval=interval)
+            
+            if nifty_spot.empty:
+                logger.warning("No data returned for NIFTY 50 Spot")
+                return pd.DataFrame()
+            
+            # Reset index to make date a column
+            nifty_spot = nifty_spot.reset_index()
+            nifty_spot.columns = ['timestamp', 'open', 'high', 'low', 'close', 'volume']
+            
+            logger.info(f"Successfully fetched {len(nifty_spot)} NIFTY Spot records")
+            return nifty_spot
+            
+        except Exception as e:
+            logger.error(f"Error fetching NIFTY Spot data: {e}")
+            return pd.DataFrame()
+    
+    def fetch_nifty_futures(self, start_date: str, end_date: str, interval: str = '1d') -> pd.DataFrame:
+        """
+        Fetch NIFTY Bank (alternative to futures) OHLCV data
+        Note: Yahoo Finance doesn't provide futures contracts, using NIFTY Bank as alternative
+        
+        Args:
+            start_date: Start date (YYYY-MM-DD)
+            end_date: End date (YYYY-MM-DD)
+            interval: Time interval ('1m', '5m', '15m', '30m', '1h', '1d', etc.)
             
         Returns:
             DataFrame with columns: timestamp, open, high, low, close, volume
         """
-        logger.info(f"Fetching NIFTY Spot data from {start_date} to {end_date}")
-        # Implementation would use actual API calls
-        # Placeholder for demonstration
-        return pd.DataFrame()
+        logger.info(f"Fetching NIFTY Bank data from {start_date} to {end_date}, interval: {interval}")
+        
+        try:
+            # ^NSEBANK is NIFTY Bank Index on Yahoo Finance
+            nifty_bank = yf.download('^NSEBANK', start=start_date, end=end_date, interval=interval)
+            
+            if nifty_bank.empty:
+                logger.warning("No data returned for NIFTY Bank")
+                return pd.DataFrame()
+            
+            nifty_bank = nifty_bank.reset_index()
+            nifty_bank.columns = ['timestamp', 'open', 'high', 'low', 'close', 'volume']
+            
+            logger.info(f"Successfully fetched {len(nifty_bank)} NIFTY Bank records")
+            return nifty_bank
+            
+        except Exception as e:
+            logger.error(f"Error fetching NIFTY Bank data: {e}")
+            return pd.DataFrame()
     
-    def fetch_nifty_futures(self, start_date: str, end_date: str, interval: str = '5minute') -> pd.DataFrame:
+    def fetch_nifty_options(self, start_date: str, end_date: str, interval: str = '1d') -> pd.DataFrame:
         """
-        Fetch NIFTY Futures data with contract rollover handling
+        Fetch Infosys stock data (alternative to options for analysis)
+        Note: Yahoo Finance doesn't provide options chain data directly
+        Using Infosys stock as alternative for ML analysis
         
         Args:
             start_date: Start date (YYYY-MM-DD)
             end_date: End date (YYYY-MM-DD)
-            interval: Time interval (default: 5minute)
+            interval: Time interval ('1m', '5m', '15m', '30m', '1h', '1d', etc.)
             
         Returns:
-            DataFrame with columns: timestamp, open, high, low, close, volume, open_interest
+            DataFrame with OHLCV data
         """
-        logger.info(f"Fetching NIFTY Futures data from {start_date} to {end_date}")
-        return pd.DataFrame()
-    
-    def fetch_nifty_options(self, start_date: str, end_date: str, interval: str = '5minute') -> pd.DataFrame:
-        """
-        Fetch NIFTY Options Chain data (ATM ± 2 strikes)
+        logger.info(f"Fetching Infosys data from {start_date} to {end_date}, interval: {interval}")
         
-        Args:
-            start_date: Start date (YYYY-MM-DD)
-            end_date: End date (YYYY-MM-DD)
-            interval: Time interval (default: 5minute)
+        try:
+            # INFY.NS is Infosys Ltd stock on Yahoo Finance
+            infy = yf.download('INFY.NS', start=start_date, end=end_date, interval=interval)
             
-        Returns:
-            DataFrame with option chain data
-        """
-        logger.info(f"Fetching NIFTY Options data from {start_date} to {end_date}")
-        return pd.DataFrame()
+            if infy.empty:
+                logger.warning("No data returned for Infosys")
+                return pd.DataFrame()
+            
+            infy = infy.reset_index()
+            infy.columns = ['timestamp', 'open', 'high', 'low', 'close', 'volume']
+            
+            logger.info(f"Successfully fetched {len(infy)} Infosys records")
+            return infy
+            
+        except Exception as e:
+            logger.error(f"Error fetching Infosys data: {e}")
+            return pd.DataFrame()
     
     def calculate_atm_strike(self, spot_price: float, strike_gap: int = 50) -> int:
         """

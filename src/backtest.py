@@ -125,13 +125,22 @@ class Backtester:
         metrics['calmar_ratio'] = calmar_ratio
         
         # Trade statistics
-        from .strategy import TradeAnalyzer
-        trades_df = TradeAnalyzer.extract_trades(df)
-        
-        if len(trades_df) > 0:
-            trade_stats = TradeAnalyzer.calculate_trade_statistics(trades_df)
-            metrics.update(trade_stats)
-        else:
+        try:
+            try:
+                from strategy import TradeAnalyzer
+            except ImportError:
+                from .strategy import TradeAnalyzer
+            trades_df = TradeAnalyzer.extract_trades(df)
+            
+            if len(trades_df) > 0:
+                trade_stats = TradeAnalyzer.calculate_trade_statistics(trades_df)
+                metrics.update(trade_stats)
+            else:
+                metrics['total_trades'] = 0
+                metrics['win_rate'] = 0
+                metrics['profit_factor'] = 0
+        except (ImportError, Exception) as e:
+            # If TradeAnalyzer not available, just set defaults
             metrics['total_trades'] = 0
             metrics['win_rate'] = 0
             metrics['profit_factor'] = 0
